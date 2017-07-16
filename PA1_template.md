@@ -1,12 +1,8 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 Load the required library
-```{r libs}
+
+```r
 library(knitr, quiet=T)
 library(plyr, quiet=T)  # For Mutate
 library(ggplot2, quiet=T)  # For plotting
@@ -52,14 +48,26 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 Download the dataset by clicking the link above and unzip the file to the working directory of R.
 
 The data set are loaded using read.csv
-```{r simulation, echo=TRUE}
+
+```r
 activity <- read.csv("activity.csv", header=TRUE, 
                      colClasses = c("numeric", "character", "numeric"))
 ```
 
 Showing the first few data rows of the data set:
-```{r showhead, echo=TRUE}
+
+```r
 head(activity)
+```
+
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
 ```
 
 ## Histogram of the total number of steps taken each day
@@ -67,7 +75,8 @@ head(activity)
 Before histogram can be made, the total steps made in a day has to be summurazed by day. In this case, we use the `tapply` function.
 
 The histogram is created using ggplot2 library.
-```{r orighisto, echo=TRUE}
+
+```r
 daySteps <- tapply(activity$steps, activity$date, sum, na.rm=TRUE)
 
 g<- ggplot(NULL, aes(x=daySteps)) + 
@@ -78,18 +87,30 @@ g<- ggplot(NULL, aes(x=daySteps)) +
 g
 ```
 
+![](figure/orighisto-1.png)<!-- -->
+
 Looking at the historgram created, there is a high frequency of days with 0 steps. These days are mainly caused not because the subject did not made a single step throughout the day but rather of missing values represented by * NA's *.
 
 ## Mean and median number of steps taken each day
 
 The mean is calculated as follows.
-``` {r stepmean, echo=TRUE}
+
+```r
 mean(daySteps, na.rm=TRUE)
 ```
 
+```
+## [1] 9354.23
+```
+
 The median is calculated as follows.
-``` {r stepmedian, echo=TRUE}
+
+```r
 median(daySteps, na.rm=TRUE)    
+```
+
+```
+## [1] 10395
 ```
 
 Both mean and median are biased given that there were 0's in the data set but are actually missing values.
@@ -98,7 +119,8 @@ Both mean and median are biased given that there were 0's in the data set but ar
 
 The mean of steps made for a time interval of all days in the data set are calaculated using the `tapply` function and the time serries plot is created using the `plot` method.
 
-``` {r timeseriesplot, echo=TRUE}
+
+```r
 timeSteps <- tapply(activity$steps, activity$interval, mean, na.rm=TRUE)
 plot(row.names(timeSteps), timeSteps, type="l", 
      xlab="Time interval", 
@@ -107,22 +129,35 @@ plot(row.names(timeSteps), timeSteps, type="l",
      col="blue")
 ```
 
+![](figure/timeseriesplot-1.png)<!-- -->
+
 The time interval where the maximum  number of steps as in the maximum point shown in the plot is:
 
-``` {r maxStep, echo=TRUE}
+
+```r
 names(which.max(timeSteps))
+```
+
+```
+## [1] "835"
 ```
 
 ## Imputing Intervals with Missing Values on Steps
 
 The number of intervals throughout the whole data set has missing values on steps is as follows:
-``` {r missingStep, echo=TRUE}
+
+```r
 sum(is.na(activity$steps))
+```
+
+```
+## [1] 2304
 ```
 
 The strategy of filling in the missing values of steps, the mean of the number of steps for each interval as seen on the above time series plot will be used to impute the missing values.
 
-``` {r imputeSteps, echo = TRUE}
+
+```r
 newAct <- activity
 for(i in 1:nrow(newAct)) {
     if (is.na(newAct[i,]$steps)) {
@@ -132,7 +167,8 @@ for(i in 1:nrow(newAct)) {
 ```
 
 The histogram of total steps of each day with the imputed steps  will be done using the code as follows:
-```{r newHisto, echo = TRUE}
+
+```r
 newdaySteps <- tapply(newAct$steps, newAct$date, sum, na.rm=TRUE)
 g<- ggplot(NULL, aes(x=newdaySteps)) + 
     geom_histogram(binwidth=2000, fill="white", col="black") + 
@@ -142,17 +178,29 @@ g<- ggplot(NULL, aes(x=newdaySteps)) +
 g
 ```
 
+![](figure/newHisto-1.png)<!-- -->
+
 Notice there are still is a few days with within 0 to 2000 steps but is now less frequent as the original historgram without the imputed values.
 
 
 The new mean is calculated as follows
-```{r newmean, echo = TRUE}
+
+```r
 mean(newdaySteps)
 ```
 
+```
+## [1] 10766.19
+```
+
 The new median as well is calculated as follows
-```{r newmedian, echo = TRUE}
+
+```r
 median(newdaySteps)
+```
+
+```
+## [1] 10766.19
 ```
 
 There is a significant difference in the values of the mean and median between the data sets with and without the imputed values. 
@@ -160,7 +208,8 @@ There is a significant difference in the values of the mean and median between t
 ## Difference Between Activity Patern between Weekday and Weekend
 
 In order to be able to compare weekend and weekday activity, another coolumn will be added to assign "Weekend" on dates that are either "Satruday" and "Sunday". The day of the week is determined using the function `weekdays`. All other day of the week that is neither "Satruday" nor "Sunday" is assigned as "Weekday"
-``` {r assignWeekEnd, echo =TRUE}
+
+```r
 newAct <- mutate(newAct, weekend = weekdays(as.Date(newAct$date)))
 
 for(i in 1:nrow(newAct)) {
@@ -176,13 +225,16 @@ for(i in 1:nrow(newAct)) {
 
 With the new data sets above, the plot comparing weekend and weekday patern of activities is coded as follows:
 
-``` {r showLatice, echo = TRUE}
+
+```r
 library(lattice)
 newSteps <- aggregate(steps ~ interval + weekend, data=newAct, mean)
 xyplot(steps ~ interval | weekend,newSteps, type="l", layout = c(1,2),
        xlab="Time Interval", ylab="Averaged Steps",
        main="Averaged Steps(Weekend vs. Weekday")
 ```
+
+![](figure/showLatice-1.png)<!-- -->
 
 
 
