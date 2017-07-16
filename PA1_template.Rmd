@@ -1,8 +1,14 @@
+```{r libs}
+library(knitr, quiet=T)
+library(plyr, quiet=T)  # For munging
+library(ggplot2, quiet=T)  # For plotting
+opts_chunk$set(dev="png", fig.path="figure/")
+```
+
 ---
-title: "Reproducible Research: Course Project 1"
+title: 'Reproducible Research: Course Project 1'
 author: "acabaya"
 date: "7/16/2017"
-output: html_document
 ---
 ===============================================================================
 
@@ -53,13 +59,13 @@ head(activity)
 Before histogram can be made, the total steps made in a day has to be summurazed by day. In this case, we use the `tapply` function.
 
 The histogram is created using ggplot2 library.
-```{r showhisto, echo=TRUE}
+```{r orighisto, echo=TRUE}
 daySteps <- tapply(activity$steps, activity$date, sum, na.rm=TRUE)
 
 library(ggplot2)
 
 g<- ggplot(NULL, aes(x=daySteps)) + 
-    geom_histogram(binwidth=5000, fill="white", col="black") + 
+    geom_histogram(binwidth=2000, fill="white", col="black") + 
     ggtitle("Daily Total No. of Steps") + 
     xlab("Daily Step Count")
 
@@ -86,7 +92,7 @@ Both mean and median are biased given that there were 0's in the data set but ar
 
 The mean of steps made for a time interval of all days in the data set are calaculated using the `tapply` function and the time serries plot is created using the `plot` method.
 
-``` {r showtimeseries, echo=TRUE}
+``` {r timeseriesplot, echo=TRUE}
 timeSteps <- tapply(activity$steps, activity$interval, mean, na.rm=TRUE)
 plot(row.names(timeSteps), timeSteps, type="l", 
      xlab="Time interval", 
@@ -123,14 +129,14 @@ The histogram of total steps of each day with the imputed steps  will be done us
 ```{r newHisto, echo = TRUE}
 newdaySteps <- tapply(newAct$steps, newAct$date, sum, na.rm=TRUE)
 g<- ggplot(NULL, aes(x=newdaySteps)) + 
-    geom_histogram(binwidth=5000, fill="white", col="black") + 
+    geom_histogram(binwidth=2000, fill="white", col="black") + 
     ggtitle("Daily Total No. of Steps") + 
     xlab("Daily Step Count")
 
 g
 ```
 
-Notice there are still is a few days with within 0 to 5000 steps but is now less frequent as the original historgram without the imputed values.
+Notice there are still is a few days with within 0 to 2000 steps but is now less frequent as the original historgram without the imputed values.
 
 
 The new mean is calculated as follows
